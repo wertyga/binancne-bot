@@ -1,0 +1,54 @@
+.Input
+  width: 100%
+  position: relative
+  margin-top: 20px
+  display: flex
+  flex-wrap: wrap
+  input
+    border: none
+    margin-top: 20px
+    background-color: transparent
+    border-bottom: 1px solid black
+    width: 100%
+    padding: 10px 5px
+    &.focus
+      border-bottom: none
+    &:focus
+      outline: none
+  .label
+    margin-right: 20px
+  input, textarea
+    box-sizing: border-box
+  textarea
+    width: 100%
+    height: 100%
+    resize: none
+    box-sizing: border-box
+  #floatText
+    position: absolute
+    top: 0
+    left: 0
+    transform: scale(0, 0)
+    transform-origin: left bottom
+    transition: all .5s
+    color: white
+    &.focus
+      transform: scale(1, 1)
+  .after
+    &.focus
+      transform: scale(1, 1)
+    height: 3px
+    background-color: white
+    transform: scale(0, 0)
+    transition: all .5s
+    width: 100%
+    position: absolute
+    bottom: 0
+    display: block
+  .error
+    text-align: left
+    display: block
+    color: red
+    padding-top: 10px
+  .field
+    height: 100%

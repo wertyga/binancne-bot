@@ -1,0 +1,64 @@
+body
+  box-sizing: border-box
+  margin: 0
+  font-size: 14px
+  user-select: none
+
+ul
+  list-style-type: none
+  padding: 0
+  margin: 0
+
+a, a:hover, a:active
+  text-decoration: none
+  outline: none
+
+button:focus
+  outline: none
+
+.text-left
+  text-align: left
+.text-right
+  text-align: right
+.text-center
+  text-align: center
+.block
+  display: block
+.inline
+  display: inline-block
+.no-padding
+  padding: 0
+.no-margin
+  margin: 0
+
+.loading
+  display: flex
+  justify-content: center
+  align-items: center
+  
+.btn
+  padding: 10px 13px
+  border-radius: 3px
+  background-color: #afb3b7
+  border: none
+  cursor: pointer
+  color: white
+  font-weight: bold
+  transition: background-color .1s
+  &:disabled
+    color: #ccd0d4
+    cursor: no-drop
+  &:active
+    background-color: #eee
+.btn-primary
+  background-color: #0065ff
+  &:disabled
+    background-color: #0693ff
+.btn-success
+  background-color: #00c519
+  &:disabled
+    background-color: #008519
+.btn-danger
+  background-color: red
+  &:disabled
+    background-color: #bf0000

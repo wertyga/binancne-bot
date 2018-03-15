@@ -1,0 +1,49 @@
+@import '../../../styles/vars'
+
+.Option
+  margin-top: 30px
+  width: 26vw
+  .default, .item, label
+    padding: 5px 10px
+  label
+    padding-left: 0
+  .item
+    cursor: pointer
+  .main-select
+    position: relative
+    margin-top: 10px
+  .upper
+    display: flex
+    justify-content: space-between
+    align-items: center
+    border: 1px solid $borderColor
+    &:hover
+      background-color: white
+    .default
+      width: 100%
+    i
+      margin-right: 10px
+      &.down
+        width: 18px
+        height: 14px
+        border-left: 2px solid $borderColor
+        border-bottom: 2px solid $borderColor
+        border-right: 2px solid transparent
+        border-top: 2px solid transparent
+        transform: rotate(-45deg)
+        box-sizing: border-box
+        margin-bottom: 8px
+  .other-content
+    width: 100%
+    margin-top: 3px
+    position: absolute
+    background-color: white
+    border: 1px solid $borderColor
+    box-sizing: border-box
+    z-index: 10
+    .item, .default
+      &:hover
+        background-color: $borderColor
+        color: #000
+  .disable
+    color: #afb3b7
