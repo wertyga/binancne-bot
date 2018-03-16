@@ -7,6 +7,8 @@ export const FETCH_PAIRS = 'FETCH_PAIRS';
 export const GET_BOT_DATA = 'GET_BOT_DATA';
 export const GET_TRADES = 'GET_TRADES';
 export const SET_RESULT = 'SET_RESULT';
+export const CLOSE_ORDER = 'CLOSE_ORDER';
+export const BUY_PAIR = 'BUY_PAIR';
 
 
 
@@ -62,9 +64,21 @@ export function closeOrder(opt) {
     return dispatch => {
         return axios.get(`/api/close-order/${id}/${pair}/${interval}/${buyDate}`)
             .then(res => {
+                dispatch(setCloseOrder({
+                    id,
+                    closePrice: res.data.closePrice
+                }));
                 dispatch(showResult(res.data.result));
                 return res;
             })
+    }
+};
+const setCloseOrder = opt => {
+    const { id, closePrice } = opt;
+    return {
+        type: CLOSE_ORDER,
+        id,
+        closePrice
     }
 };
 

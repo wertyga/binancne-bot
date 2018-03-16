@@ -110,7 +110,7 @@ export default class Orders extends React.Component {
     };
 
     deleteOrder = (_id) => {
-        this.props.deleteOrder(_id)
+        return this.props.deleteOrder(_id)
             .then(res =>
                 this.setState({
                     orders: this.state.orders.filter(item => item._id !== _id)
