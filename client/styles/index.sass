@@ -45,11 +45,24 @@ button:focus
   color: white
   font-weight: bold
   transition: background-color .1s
+  position: relative
   &:disabled
     color: #ccd0d4
     cursor: no-drop
   &:active
     background-color: #eee
+
+  &:after
+    display: none
+    position: absolute
+    width: 100%
+    height: 100%
+    top: 0
+    left: 0
+    background-color: rgba(0,0,0, .3)
+  &:hover
+    &:after
+      display: block
 .btn-primary
   background-color: #0065ff
   &:disabled

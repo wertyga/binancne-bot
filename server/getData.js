@@ -98,7 +98,7 @@ export function analyzeData(interval='1h') {
         .then(resp => {
             let i = 0;
             const prArr = resp.data.symbols
-                //.slice(0, 150)
+                .slice(0, 200)
                 .map(item => {
                 return getKline(item.symbol, interval)
                 }
@@ -108,7 +108,7 @@ export function analyzeData(interval='1h') {
 
         .then(data => {
                     console.log('ASDASDASASD')
-                    const priceData = data
+                    // const priceData = data
                     //     .map(pair => {
                     //     return {
                     //         pair: pair.pair,
@@ -121,19 +121,22 @@ export function analyzeData(interval='1h') {
                     //         })
                     //     }
                     // });
-
-                    return priceData.filter(item => isNaN(+item.pair)).filter(item => item.data.length >= limit).map(item => {
-                        exponentialMovingAverage(item.data, 12);
-                        exponentialMovingAverage(item.data, 26);
-                        simpleMA(item.data, 7);
-                        simpleMA(item.data, 25);
-                        macdCalculate(item.data);
-                        const macdData = signalMACD(item.data);
-                        return {
-                            pair: item.pair,
-                            data: macdData
-                        }
-                    });
+                    // data.forEach(item => console.log(item.data.length))
+                    return data
+                        .filter(item => isNaN(+item.pair))
+                        .map(item => {
+                            exponentialMovingAverage(item.data, 12);
+                            exponentialMovingAverage(item.data, 26);
+                            simpleMA(item.data, 7);
+                            simpleMA(item.data, 25);
+                            macdCalculate(item.data);
+                            const macdData = signalMACD(item.pair, item.data);
+                            return {
+                                pair: item.pair,
+                                data: macdData
+                            }
+                        })
+                        .filter(item => !!item.data);
 
                 })
                 .then(data => {
@@ -219,9 +222,11 @@ export function analyzeData(interval='1h') {
                             return new Trade({
                                 pair: item.pair,
                                 session,
-                                localMin: item.min,
-                                buyPrice: item.data[item.data.length - 1].price,
-                                createdAt: Date.now() + infelicity,
+                                // localMin: item.min,
+                                startPrice: item.data[item.data.length - 1].price,
+                                // buyPrice: item.data[item.data.length - 1].price,
+                                // createdAt: Date.now() + infelicity,
+                                startTime: Date.now() + infelicity,
                                 currentPrice: item.data[item.data.length - 1].price,
                                 interval
                             }).save();

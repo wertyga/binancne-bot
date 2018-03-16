@@ -11,6 +11,8 @@ const tradesSchema = mongoose.Schema({
         position: { type: Number, default: 0 },
         price: { type: Number, default: 0 }
     },
+    startPrice: { type: Number, default: 0 },
+    startTime: { type: Date },
     comment: { type: String, default: '' },
     takeProfit: { type: Number, default: 0 },
     buyLimit1: { type: Number, default: 0 },

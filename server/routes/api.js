@@ -215,13 +215,15 @@ route.get('/get-active-orders', (req, res) => {
                             currentPrice: result[result.length - 1]['Close'],
                             interval: item.interval,
                             pair: item.pair,
+                            startPrice: item.startPrice,
                             closePrice: item.closePrice,
                             localMin: item.localMin,
                             takeProfit: item.takeProfit,
                             buyLimit1: item.buyLimit1,
                             buyLimit2: item.buyLimit2,
                             buyLimit3: item.buyLimit3,
-                            comment: item.comment
+                            comment: item.comment,
+                            startTime: item.startTime
                         }
                     })
             }))

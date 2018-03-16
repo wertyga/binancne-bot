@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
+import classnames from 'classnames';
 
 import { closeOrder } from '../../actions/pairsAPI';
+import { calculatePercentProfit } from '../common/commonFunctions';
 
 import { exponentialMovingAverage, signalMACD, macdCalculate, simpleMA } from '../../../server/common/ema';
 
@@ -18,9 +20,16 @@ export default class Order extends React.Component {
     constructor(props) {
         super(props);
 
-        const percent = this.calculateClosePercent(this.props.currentPrice, this.props.buyPrice);
+        const percent =
+            !!this.props.buyPrice ?
+            this.calculateClosePercent(this.props.currentPrice, this.props.buyPrice) :
+            null;
+
+        this.youCanBuyPair = 1.5;
 
         this.initialState = {
+            startTime: this.props.startTime || '',
+            signPrice: this.calculateClosePercent(this.props.currentPrice, this.props.startPrice),
             percent,
             canBuy: false,
             _id: this.props._id,
@@ -80,14 +89,15 @@ export default class Order extends React.Component {
         // this.socket.on(`error-on-${this.state.pair}`, err => {
         //     this.setState({ error: err })
         // });
-        this.calculateClosePercent();
-        if(this.state.closePrice) {
-            // let closePercent = ((this.state.closePrice - this.state.buyPrice) / (this.state.buyPrice / 100)).toFixed(2) + '%';
-            // if(parseFloat(closePercent) > 0) closePercent = '+' + closePercent;
+        if(this.state.buyPrice && !this.state.closePrice) {
             this.setState({
-                profit: this.calculateClosePercent()
+                percent: this.calculateClosePercent(this.state.currentPrice, this.state.buyPrice),
             });
-        }
+        } else if(this.state.buyPrice && this.state.closePrice) {
+            this.setState({
+                profit: this.calculateClosePercent(this.state.buyPrice, this.state.closePrice)
+            });
+        };
         // axios.get(`/api/fetch-socket-data/${this.state.pair}/${this.state.interval}`)
 
         this.timer = setInterval(() => this.showOrder(true), 30000)
@@ -101,8 +111,17 @@ export default class Order extends React.Component {
             google.charts.load('current', {packages: ['corechart', 'line']});
             google.charts.setOnLoadCallback(this.drawMacdChart);
             google.charts.setOnLoadCallback(this.drawSeveElevenChart);
+        };
 
-            this.setState({ percent: this.calculateClosePercent() });
+        if(this.state.currentPrice !== prevState.currentPrice) {
+            if(this.state.buyPrice && !this.state.closePrice) {
+                this.setState({
+                    percent: this.calculateClosePercent(this.state.currentPrice, this.state.buyPrice)
+                })
+            };
+            this.setState({
+                signPrice: this.calculateClosePercent(this.state.currentPrice, this.props.startPrice),
+            });
         };
     };
 
@@ -278,6 +297,7 @@ export default class Order extends React.Component {
                 this.setState({
                     buyPrice: res.data.buyPrice,
                     buyDate: res.data.createdAt,
+                    percent: this.calculateClosePercent(this.state.currentPrice, res.data.buyPrice),
                     loading: false
                 });
             })
@@ -315,12 +335,12 @@ export default class Order extends React.Component {
 
     calculateClosePercent = (currentPrice = this.state.currentPrice, buyPrice = this.state.buyPrice) => {
         if(!buyPrice) return '';
-        let closePercent = ((currentPrice - buyPrice) / (buyPrice / 100)).toFixed(2);
-        if(closePercent > 1.2) {
+        let closePercent = calculatePercentProfit(currentPrice, buyPrice);
+        if(closePercent > this.youCanBuyPair) {
             this.setState({ canBuy: true });
             this.props.setCanBuy(this.props.pair);
         };
-        closePercent += '%';
+        closePercent = closePercent.toFixed(2) + '%';
         if(parseFloat(closePercent) > 0) closePercent = '+' + closePercent;
         return closePercent;
     };
@@ -449,16 +469,22 @@ export default class Order extends React.Component {
         };
 
         return (
-            <div className="Order" style={styleToBuy} id={this.state.pair}>
+            <div className="Order">
                     {this.props.loading && <div className="loading">Loading...</div>}
                     <div className="main">
                         <div className="uppers">
+                            <div className={classnames({
+                                btn: true,
+                                'btn-success': this.state.signPrice.indexOf('+') === 0 &&
+                                Number(this.state.signPrice.replace('%', '')) >= this.youCanBuyPair
+                            })}>{this.state.signPrice}</div>
                             <div className="left">
                                 <p>Pair: <span>{this.state.pair}</span></p>
                                 <p>Buy price: <span>{this.state.buyPrice || 'Not buyed yet'}</span></p>
                                 <p>Current price: <span>{this.state.currentPrice || 'No current price'}</span></p>
                                 <p>Interval: <span>{this.state.interval || 'No interval'}</span></p>
                                 <p>Buy time: <span>{this.state.buyDate || 'Not buyed yet'}</span></p>
+                                <p>Start time: <span>{this.state.startTime || 'Not started yet???'}</span></p>
                                 <div>Local minimum:
                                     <p style={{ margin: '0 0 0 10px' }}>Price: {this.state.localMin.price}</p>
                                     <p style={{ margin: '0 0 0 10px' }}>Position: {this.state.localMin.position}</p>
@@ -533,7 +559,7 @@ export default class Order extends React.Component {
                                 onClick={this.closeOrder}>
                             {!!this.state.closePrice ?
                                 `Closed on ${this.state.closePrice}: ${this.state.profit}`:
-                                `Close order ${this.state.percent}`}
+                                `Close order ${this.state.percent || ''}`}
                         </button>
                         <button className="btn btn-primary"
                                 disabled={this.state.loading || !this.state.closePrice || !this.state.buyPrice}
@@ -558,7 +584,3 @@ export default class Order extends React.Component {
     };
 };
 
-
-function calculatePercentProfit(currentPrice, buyPrice) {
-    return +((+currentPrice - +buyPrice) / (+buyPrice / 100)).toFixed(2);
-};
