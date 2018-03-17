@@ -130,7 +130,7 @@ export function analyzeData(interval='1h') {
                             simpleMA(item.data, 7);
                             simpleMA(item.data, 25);
                             macdCalculate(item.data);
-                            const macdData = signalMACD(item.pair, item.data);
+                            const macdData = signalMACD(item.data);
                             return {
                                 pair: item.pair,
                                 data: macdData
@@ -214,7 +214,9 @@ export function analyzeData(interval='1h') {
                                 lmacd < 0 &&
                                 nowmacd < 0;
 
-                        if(coming) result.push(item);
+                        if(coming || down) {
+                            result.push(item);
+                        };
                     });
 
                     if(result.length > 0) {

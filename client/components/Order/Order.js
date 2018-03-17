@@ -25,7 +25,7 @@ export default class Order extends React.Component {
             this.calculateClosePercent(this.props.currentPrice, this.props.buyPrice) :
             null;
 
-        this.youCanBuyPair = 1.5;
+        this.youCanBuyPair = 1.66;
 
         this.initialState = {
             startTime: this.props.startTime || '',
@@ -94,8 +94,9 @@ export default class Order extends React.Component {
                 percent: this.calculateClosePercent(this.state.currentPrice, this.state.buyPrice),
             });
         } else if(this.state.buyPrice && this.state.closePrice) {
+            console.log('srae')
             this.setState({
-                profit: this.calculateClosePercent(this.state.buyPrice, this.state.closePrice)
+                profit: this.calculateClosePercent(this.state.closePrice, this.state.buyPrice)
             });
         };
         // axios.get(`/api/fetch-socket-data/${this.state.pair}/${this.state.interval}`)
@@ -104,7 +105,7 @@ export default class Order extends React.Component {
     };
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.state.data !== prevState.data) {
+        if(this.state.data !== prevState.data && this.state.data.length > 0) {
             google.charts.load('current', {'packages':['corechart']});
             google.charts.setOnLoadCallback(this.drawChart);
 
@@ -462,6 +463,15 @@ export default class Order extends React.Component {
             });
     };
 
+    closeCharts = () => {
+        const [ chart, macd, seven ] = [ this.chart, this.macdChart, this.sevenEleven ];
+
+        chart.innerHTML = '';
+        macd.innerHTML = '';
+        seven.innerHTML = '';
+        this.setState({ data: [] });
+    };
+
     render() {
 
         const styleToBuy = {
@@ -540,10 +550,10 @@ export default class Order extends React.Component {
                                 disabled={this.props.loading || this.state.loading} onClick={this.deleteOrder}>Delete order</button>
                         <button className='btn btn-success'
                                 disabled={this.props.loading || this.state.loading}
-                                onClick={() => this.showOrder(false)}
+                                onClick={() => this.state.data.length < 1 ? this.showOrder(false) : this.closeCharts()}
                                 //onClick={this.drawAllCharts}
                         >
-                            Get order data
+                            { this.state.data.length < 1 ? 'Get order data' : 'Close charts' }
                         </button>
                         <button className="btn btn-success"
                                 style={{  width: '30%' }}
