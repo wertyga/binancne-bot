@@ -33,7 +33,7 @@ export function macdCalculate(dataEma) {
     });
 };
 
-export function signalMACD(pair, dataObjArray) {
+export function signalMACD(dataObjArray) {
      // dataObj = {
     //  time: Date,
     //   price: Number,
@@ -55,7 +55,6 @@ export function signalMACD(pair, dataObjArray) {
     const firstSignal = +(avg / timePeriod).toFixed(8);
 
     if(!macdArr[timePeriod - 1]) {
-        console.log(pair, dataObjArray.length, macdArr.length);
         return null;
     };
 
