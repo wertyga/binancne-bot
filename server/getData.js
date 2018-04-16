@@ -214,7 +214,7 @@ export function analyzeData(interval='1h') {
                                 lmacd < 0 &&
                                 nowmacd < 0;
 
-                        if(coming || down) {
+                        if(true) {
                             result.push(item);
                         };
                     });

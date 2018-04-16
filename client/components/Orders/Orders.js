@@ -34,7 +34,7 @@ export default class Orders extends React.Component {
     constructor(props) {
         super(props);
 
-        this.showOrders = 50;
+        this.showOrders = 300;
 
         this.state = {
             signPair: [],
@@ -143,9 +143,10 @@ export default class Orders extends React.Component {
         });
     };
 
-    setCanBuy = pair => {
+    setCanBuy = (pair, sign) => {
         const isHere = this.state.signPair.indexOf(pair) !== -1;
-        if(!isHere) this.setState({ signPair: [...this.state.signPair, pair] });
+        if(!isHere && sign) this.setState({ signPair: [...this.state.signPair, pair] });
+        if(isHere && !sign) this.setState({ signPair: this.state.signPair.filter(item => item !== pair) });
     };
 
     render() {

@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import classnames from 'classnames';
 
+// import slam from '../../../data/ANGELS_F.WAV';
+import path from 'path';
+
 import { closeOrder } from '../../actions/pairsAPI';
 import { calculatePercentProfit } from '../common/commonFunctions';
 
@@ -25,7 +28,8 @@ export default class Order extends React.Component {
             this.calculateClosePercent(this.props.currentPrice, this.props.buyPrice) :
             null;
 
-        this.youCanBuyPair = 1.66;
+        this.youCanBuyPair = 2;
+        this.negativePercent = -3;
 
         this.initialState = {
             startTime: this.props.startTime || '',
@@ -94,12 +98,11 @@ export default class Order extends React.Component {
                 percent: this.calculateClosePercent(this.state.currentPrice, this.state.buyPrice),
             });
         } else if(this.state.buyPrice && this.state.closePrice) {
-            console.log('srae')
+
             this.setState({
                 profit: this.calculateClosePercent(this.state.closePrice, this.state.buyPrice)
             });
         };
-        // axios.get(`/api/fetch-socket-data/${this.state.pair}/${this.state.interval}`)
 
         this.timer = setInterval(() => this.showOrder(true), 30000)
     };
@@ -121,7 +124,7 @@ export default class Order extends React.Component {
                 })
             };
             this.setState({
-                signPrice: this.calculateClosePercent(this.state.currentPrice, this.props.startPrice),
+                signPrice: this.calculateClosePercent(this.state.currentPrice, this.props.startPrice)
             });
         };
     };
@@ -337,10 +340,22 @@ export default class Order extends React.Component {
     calculateClosePercent = (currentPrice = this.state.currentPrice, buyPrice = this.state.buyPrice) => {
         if(!buyPrice) return '';
         let closePercent = calculatePercentProfit(currentPrice, buyPrice);
-        if(closePercent > this.youCanBuyPair) {
+
+        if((closePercent > this.youCanBuyPair) || (closePercent < this.negativePercent)) {
             this.setState({ canBuy: true });
-            this.props.setCanBuy(this.props.pair);
+            this.props.setCanBuy(this.props.pair, true);
+        } else {
+            this.setState({ canBuy: false });
+            this.props.setCanBuy(this.props.pair, false);
         };
+
+        // if(closePercent < this.negativePercent) {
+        //     this.setState({ canBuy: true });
+        //     this.props.setCanBuy(this.props.pair, true);
+        // } else {
+        //     this.setState({ canBuy: false });
+        //     this.props.setCanBuy(this.props.pair, false);
+        // };
         closePercent = closePercent.toFixed(2) + '%';
         if(parseFloat(closePercent) > 0) closePercent = '+' + closePercent;
         return closePercent;
@@ -480,13 +495,14 @@ export default class Order extends React.Component {
 
         return (
             <div className="Order">
-                    {this.props.loading && <div className="loading">Loading...</div>}
+                   
                     <div className="main">
                         <div className="uppers">
                             <div className={classnames({
                                 btn: true,
                                 'btn-success': this.state.signPrice.indexOf('+') === 0 &&
-                                Number(this.state.signPrice.replace('%', '')) >= this.youCanBuyPair
+                                Number(this.state.signPrice.replace('%', '')) >= this.youCanBuyPair,
+                                'btn-danger': Number(this.state.signPrice.replace('%', '')) <= this.negativePercent
                             })}>{this.state.signPrice}</div>
                             <div className="left">
                                 <p>Pair: <span>{this.state.pair}</span></p>
@@ -577,10 +593,6 @@ export default class Order extends React.Component {
                         >
                             Renew order
                         </button>
-
-
-
-
                         {this.state.error && <div className="error">{this.state.error}</div>}
                     </div>
                 <div className="chart" ref={node => this.chart = node}></div>

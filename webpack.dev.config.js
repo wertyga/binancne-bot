@@ -42,7 +42,7 @@ module.exports = {
                 loaders: ['style-loader', 'css-loader', 'sass-loader']
             },
             {
-                test: /\.eot$|.ttf$|.woff$|.jpg$|.png$|.svg$|.woff2$/,
+                test: /\.eot$|.ttf$|.woff$|.jpg$|.png$|.svg$|.woff2$|.wav$/,
                 loaders: ['file-loader']
             }
         ]
