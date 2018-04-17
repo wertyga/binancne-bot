@@ -20,14 +20,16 @@ import api from './routes/api';
 
 //***********************************************
 
-const dev = process.env.NODE_ENV ? process.env.NODE_ENV.trim() === 'development' : true;
+const dev = process.env.NODE_ENV === 'development';
+const test = process.env.NODE_ENV === 'test';
+const prod = process.env.NODE_ENV === 'production';
 
 
 const app = express();
 const server = http.Server(app);
 export const io = require('socket.io')(server);
 
-if (dev ? false : cluster.isMaster) {
+if (prod && cluster.isMaster) {
 
     let cpuCount = require('os').cpus().length;
 
@@ -41,9 +43,36 @@ if (dev ? false : cluster.isMaster) {
         cluster.fork();
     });
 
+
 } else {
 
+    server.listen(config.PORT, () => console.log(`Server run on ${config.PORT} port`));
 
+};
+
+    if(prod) {
+        //************************* GARBAGE magic ***********************************
+
+        // Для работы с garbage collector запустите проект с параметрами:
+        // node --nouse-idle-notification --expose-gc app.js
+        let gcInterval;
+
+        function init() {
+            gcInterval = setInterval(function () {
+                gcDo();
+            }, 60000);
+        };
+
+        function gcDo() {
+            global.gc();
+            clearInterval(gcInterval);
+            init();
+        };
+
+        init();
+
+        //************************************************************
+    };
 
     //****************** Webpack ********************
     if(dev) {
@@ -60,7 +89,7 @@ if (dev ? false : cluster.isMaster) {
             noInfo: true
         }));
         app.use(webpackHotMiddleware(compiler));
-    }
+    };
 
     //**********************************************
 
@@ -68,30 +97,9 @@ if (dev ? false : cluster.isMaster) {
     // app.use(cookieParser());
     if(!dev) app.use(express.static(path.join(__dirname, '..', 'client', 'static')));
     app.use(express.static(path.join(__dirname, config.uploads.directory)));
+    app.use(express.static(path.join(__dirname, '..', 'data')));
 
-    //************************* GARBAGE magic ***********************************
 
-    // Для работы с garbage collector запустите проект с параметрами:
-    // node --nouse-idle-notification --expose-gc app.js
-    if(!dev) {
-        let gcInterval;
-
-        function init() {
-            gcInterval = setInterval(function () {
-                gcDo();
-            }, 60000);
-        };
-
-        function gcDo() {
-            global.gc();
-            clearInterval(gcInterval);
-            init();
-        };
-
-        init();
-    }
-
-    //************************************************************
 
     //******************************** Routes ***************************
 
@@ -100,12 +108,6 @@ if (dev ? false : cluster.isMaster) {
     app.get('/*', (req, res) => {
         res.sendFile(path.join(__dirname, 'index.html'))
     });
-
-
-    //******************************** Run server ***************************
-
-    server.listen(config.PORT, () => console.log(`Server run on ${config.PORT} port`));
-};
 
 //******************************** Uncaught Exception ***************************
 

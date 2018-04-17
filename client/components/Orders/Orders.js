@@ -7,6 +7,8 @@ import { getCandleData, getActiveOrders, deleteOrder } from '../../actions/pairs
 import './Orders.sass';
 import Order from "../Order/Order";
 
+import gongFile from '../../../data/old-fashioned-school-bell-daniel_simon.wav';
+
 
 const arrow = {
     width: 20,
@@ -35,6 +37,9 @@ export default class Orders extends React.Component {
         super(props);
 
         this.showOrders = 300;
+
+        this.gong = new Audio(gongFile);
+        this.gong.load();
 
         this.state = {
             signPair: [],
@@ -145,7 +150,10 @@ export default class Orders extends React.Component {
 
     setCanBuy = (pair, sign) => {
         const isHere = this.state.signPair.indexOf(pair) !== -1;
-        if(!isHere && sign) this.setState({ signPair: [...this.state.signPair, pair] });
+        if(!isHere && sign) {
+            this.setState({ signPair: [...this.state.signPair, pair] });
+            this.gong.play();
+        };
         if(isHere && !sign) this.setState({ signPair: this.state.signPair.filter(item => item !== pair) });
     };
 
@@ -157,7 +165,7 @@ export default class Orders extends React.Component {
                     <ul>
                         {this.state.signPair.map((item, i) => {
                             return <li key={i}>
-                                {item}
+                                <a href={`#${item}`}>{item}</a>
                             </li>
                         })}
                     </ul>

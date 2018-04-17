@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --env=jsdom",
-    "start:dev": "set NODE_ENV=development && nodemon --watch server --exec babel-node -- server/index.js",
-    "build": "set NODE_ENV=production && webpack -p && babel server --out-dir production/server --copy-files",
-    "start:prod": "set NODE_ENV=production && node --nouse-idle-notification --expose-gc production/server/index.js",
+    "start:dev": "cross-env NODE_ENV=development nodemon --watch server --exec babel-node -- server/index.js",
+    "build": "cross-env NODE_ENV=production webpack -p && babel server --out-dir production/server --copy-files",
+    "start:prod": "cross-env NODE_ENV=production node --nouse-idle-notification --expose-gc production/server/index.js",
     "crack": "npm i --save-dev babel-cli babel-plugin-transform-decorators-legacy react redux url-loader webpack babel-loader babel-preset-env babel-preset-react babel-preset-stage-0 css-loader node-sass nodemon react-hot-loader redux-devtools-extension redux-thunk sass-loader style-loader webpack-dev-middleware webpack-hot-middleware babel-plugin-transform-runtime react-router-dom react-dom file-loader react-redux"
   },
   "author": "",
@@ -23,6 +23,7 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.17.2",
     "connect-mongo": "^2.0.0",
+    "cross-env": "^5.1.4",
     "exponential-moving-average": "^1.0.0",
     "express": "^4.15.4",
     "express-session": "^1.15.6",

@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { connect } from 'react-redux';
-import io from 'socket.io-client';
+
 import classnames from 'classnames';
 
-// import slam from '../../../data/ANGELS_F.WAV';
 import path from 'path';
 
 import { closeOrder } from '../../actions/pairsAPI';
@@ -29,7 +28,7 @@ export default class Order extends React.Component {
             null;
 
         this.youCanBuyPair = 2;
-        this.negativePercent = -3;
+        this.negativePercent = -10;
 
         this.initialState = {
             startTime: this.props.startTime || '',
@@ -68,31 +67,6 @@ export default class Order extends React.Component {
     };
 
     componentDidMount() {
-        // this.socket = io(`/`);
-        // this.socket.on(`kline-${this.state.pair}`,  msg => {
-        //     const currentPrice = +JSON.parse(msg).k.c;
-        //
-        //     if(!this.state.closePrice && !this.state.buyPrice) {
-        //         if(this.state.buyLimit1 && (currentPrice >= this.state.buyLimit1)) {
-        //             this.buyPair();
-        //         } else if(this.state.buyLimit2 && (currentPrice <= this.state.buyLimit2)) {
-        //             this.buyPair();
-        //         } else if(this.state.buyLimit3 && (currentPrice <= this.state.buyLimit3)) {
-        //             this.buyPair();
-        //         }
-        //     };
-        //
-        //     if(!!this.state.takeProfit && !!this.state.buyPrice && this.state.takeProfit <= currentPrice) {
-        //         this.closeOrder();
-        //     };
-        //
-        // });
-        // this.socket.on(`depth-${this.state.pair}`, msg => {
-        //     this.setDepth(msg.bids, msg.asks)
-        // });
-        // this.socket.on(`error-on-${this.state.pair}`, err => {
-        //     this.setState({ error: err })
-        // });
         if(this.state.buyPrice && !this.state.closePrice) {
             this.setState({
                 percent: this.calculateClosePercent(this.state.currentPrice, this.state.buyPrice),
@@ -118,11 +92,11 @@ export default class Order extends React.Component {
         };
 
         if(this.state.currentPrice !== prevState.currentPrice) {
-            if(this.state.buyPrice && !this.state.closePrice) {
-                this.setState({
-                    percent: this.calculateClosePercent(this.state.currentPrice, this.state.buyPrice)
-                })
-            };
+            // if(this.state.buyPrice && !this.state.closePrice) {
+            //     this.setState({
+            //         percent: this.calculateClosePercent(this.state.currentPrice, this.state.buyPrice)
+            //     })
+            // };
             this.setState({
                 signPrice: this.calculateClosePercent(this.state.currentPrice, this.props.startPrice)
             });
@@ -341,13 +315,17 @@ export default class Order extends React.Component {
         if(!buyPrice) return '';
         let closePercent = calculatePercentProfit(currentPrice, buyPrice);
 
-        if((closePercent > this.youCanBuyPair) || (closePercent < this.negativePercent)) {
+        if(
+            // (closePercent > this.youCanBuyPair) ||
+            (closePercent < this.negativePercent)
+        ) {
             this.setState({ canBuy: true });
             this.props.setCanBuy(this.props.pair, true);
-        } else {
-            this.setState({ canBuy: false });
-            this.props.setCanBuy(this.props.pair, false);
-        };
+        }
+        // else {
+        //     this.setState({ canBuy: false });
+        //     this.props.setCanBuy(this.props.pair, false);
+        // };
 
         // if(closePercent < this.negativePercent) {
         //     this.setState({ canBuy: true });
@@ -361,14 +339,14 @@ export default class Order extends React.Component {
         return closePercent;
     };
 
-    getDepth = () => {
-        if(this.state.depth) {
-            this.socket.emit(`get-depth-${this.state.pair}`)
-        } else {
-            this.socket.emit(`close-depth-${this.state.pair}`)
-        };
-        
-    };
+    // getDepth = () => {
+    //     if(this.state.depth) {
+    //         this.socket.emit(`get-depth-${this.state.pair}`)
+    //     } else {
+    //         this.socket.emit(`close-depth-${this.state.pair}`)
+    //     };
+    //
+    // };
 
     compareProfit = (currentPrice) => {
         if(calculatePercentProfit(+currentPrice, this.state.buyPrice) > 2.5 && this.state.buyed && !this.state.closePrice) {
@@ -494,7 +472,7 @@ export default class Order extends React.Component {
         };
 
         return (
-            <div className="Order">
+            <div className="Order" id={this.state.pair}>
                    
                     <div className="main">
                         <div className="uppers">

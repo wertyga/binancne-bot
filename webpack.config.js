@@ -30,7 +30,7 @@ module.exports = {
             },
 
             {
-                test: /(.woff2|.woff|.eot|.ttf|.otf)$/,
+                test: /(.woff2|.woff|.eot|.ttf|.otf|.wav)$/,
                 loader: 'url-loader',
                 query: {
                     limit: 10000
