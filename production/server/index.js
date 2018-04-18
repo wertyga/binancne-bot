@@ -66,6 +66,17 @@ var server = _http2.default.Server(app);
 var io = exports.io = require('socket.io')(server);
 
 if (prod && _cluster2.default.isMaster) {
+    var init = function init() {
+        gcInterval = setInterval(function () {
+            gcDo();
+        }, 60000);
+    };
+
+    var gcDo = function gcDo() {
+        global.gc();
+        clearInterval(gcInterval);
+        init();
+    };
 
     var cpuCount = require('os').cpus().length;
 
@@ -78,25 +89,6 @@ if (prod && _cluster2.default.isMaster) {
         console.log('Worker ' + worker.id + ' died :(');
         _cluster2.default.fork();
     });
-} else {
-
-    server.listen(_config2.default.PORT, function () {
-        return console.log('Server run on ' + _config2.default.PORT + ' port');
-    });
-};
-
-if (prod) {
-    var init = function init() {
-        gcInterval = setInterval(function () {
-            gcDo();
-        }, 60000);
-    };
-
-    var gcDo = function gcDo() {
-        global.gc();
-        clearInterval(gcInterval);
-        init();
-    };
 
     //************************* GARBAGE magic ***********************************
 
@@ -111,6 +103,12 @@ if (prod) {
     init();
 
     //************************************************************
+
+} else {
+
+    server.listen(_config2.default.PORT, function () {
+        return console.log('Server run on ' + _config2.default.PORT + ' port');
+    });
 };
 
 //****************** Webpack ********************
